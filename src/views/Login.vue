@@ -1,18 +1,33 @@
 <template>
-    <div class="login"> 
-        <p>登陆</p>
-        <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-            <el-form-item label="用户名" prop="name">
-                <el-input v-model="ruleForm.name"></el-input>
+     <div class="login-container">
+        <el-form :model="ruleForm" :rules="rules"
+         status-icon
+         ref="ruleForm" 
+         label-position="left" 
+         label-width="0px" 
+         class="demo-ruleForm login-page">
+            <h3 class="title">系统登录</h3>
+            <el-form-item prop="name">
+                <el-input type="text" 
+                    v-model="ruleForm.name" 
+                    auto-complete="off" 
+                    placeholder="用户名"
+                ></el-input>
             </el-form-item>
-            <el-form-item label="密 码" prop="pass">
-                <el-input type='password' v-model="ruleForm.pass"></el-input>
+                <el-form-item prop="pass">
+                    <el-input type="password" 
+                        v-model="ruleForm.pass" 
+                        auto-complete="off" 
+                        placeholder="密码"
+                    ></el-input>
+                </el-form-item>
+            <el-checkbox 
+                v-model="checked"
+                class="rememberme"
+            >记住密码</el-checkbox>
+            <el-form-item style="width:100%;">
+                <el-button type="primary" style="width:100%;" @click="handleSubmit" :loading="logining">登录</el-button>
             </el-form-item>
-            <el-form-item>
-                <el-button type="primary" @click="login('ruleForm')">提交</el-button>
-                <el-button @click="resetForm('ruleForm')">重置</el-button>
-            </el-form-item>
-            
         </el-form>
     </div>
 </template>
@@ -22,6 +37,7 @@
         name: 'login',
         data(){
             return{
+                logining: false,
                 ruleForm:{
                     name:'admin',
                     pass:'100uu100UU'
@@ -35,11 +51,13 @@
                         {required:true,message:'请输入密码',trigger: 'blur'},
                         {min:6,max:10,message:'长度在6-10个字符',trigger: 'blur'}
                     ],
-                }
+                },
+                checked: false
             }
         },
         methods: {
-            login(formName) {
+
+            handleSubmit(event){
                 let {name,pass} = this.ruleForm
                 this.$http({
                     method: 'post',
@@ -49,25 +67,40 @@
                         pass: pass
                     }
                 }).then(res=>{
-                    console.log(res);
-                    var code = res.data;
-                    console.log(code)
-                    if(code=='OK'){
+                    var code = res.data.code;
+                    var msg = res.data.msg;
+                    if(code=='200'){
                         console.log(code)
                         sessionStorage.setItem('name',name);
                         console.log(sessionStorage.getItem('name'))
                         
                         this.$router.push({name:'Home'})
+                    }else{
+                        alert(msg) 
                     }
                 })
-            },
-            resetForm(formName) {
-                this.$refs[formName].resetFields();
             }
         }
     }
 </script>
 
-<style>
-
+<style scoped>
+    .login-container {
+        width: 100%;
+        height: 100%;
+    }
+    .login-page {
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        margin: 180px auto;
+        width: 350px;
+        padding: 35px 35px 15px;
+        background: #fff;
+        border: 1px solid #eaeaea;
+        box-shadow: 0 0 25px #cac6c6;
+    }
+    label.el-checkbox.rememberme {
+        margin: 0px 0px 15px;
+        text-align: left;
+    }
 </style>
